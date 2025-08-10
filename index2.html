@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แบบสอบถามสุขภาพ</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f0fff0, #d0f0e0);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      font-size: 1rem;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      margin-right: 5px;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #00b894, #00cec9);
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #00a884, #00b8b0);
+      transform: scale(1.01);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .modal-content p {
+      font-size: 1.2rem;
+      margin: 0;
+      color: #2c3e50;
+    }
+
+    .modal-content button {
+      margin-top: 15px;
+      background: #0984e3;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .modal-content button:hover {
+      background: #0652dd;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>แบบสอบถามสุขภาพ 🩺</h2>
+    <form id="healthForm">
+
+      <label for="age">อายุ (ปี)</label>
+      <input type="number" id="age" />
+      <div id="ageError" class="error"></div>
+
+      <label>เพศ</label>
+      <label><input type="radio" name="gender" value="ชาย"> ชาย</label>
+      <label><input type="radio" name="gender" value="หญิง"> หญิง</label>
+
+      <label for="weight">น้ำหนัก (กก.)</label>
+      <input type="number" id="weight" />
+      <div id="weightError" class="error"></div>
+
+      <label for="height">ส่วนสูง (ซม.)</label>
+      <input type="number" id="height" />
+      <div id="heightError" class="error"></div>
+
+      <label><input type="checkbox" id="hasDisease"> มีโรคประจำตัว</label>
+      <div id="diseaseDetailBox" style="display: none;">
+        <label for="diseaseDetail">กรุณาระบุ:</label>
+        <textarea id="diseaseDetail"></textarea>
+        <div id="diseaseError" class="error"></div>
+      </div>
+
+      <button type="submit">ส่งแบบสอบถาม</button>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="resultModal">
+    <div class="modal-content">
+      <p id="bmiResult"></p>
+      <button onclick="closeModal()">ปิด</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("healthForm");
+    const hasDiseaseCheckbox = document.getElementById("hasDisease");
+    const diseaseDetailBox = document.getElementById("diseaseDetailBox");
+
+    hasDiseaseCheckbox.addEventListener("change", function() {
+      diseaseDetailBox.style.display = this.checked ? "block" : "none";
+    });
+
+    function getBMICategory(bmi) {
+      if (bmi < 18.5) return "น้ำหนักน้อย";
+      else if (bmi < 25) return "ปกติ";
+      else if (bmi < 30) return "น้ำหนักเกิน";
+      else return "อ้วน";
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const age = parseInt(document.getElementById("age").value);
+      const weight = parseFloat(document.getElementById("weight").value);
+      const height = parseFloat(document.getElementById("height").value);
+      const hasDisease = hasDiseaseCheckbox.checked;
+      const diseaseDetail = document.getElementById("diseaseDetail").value.trim();
+
+      // Clear previous errors
+      document.getElementById("ageError").textContent = "";
+      document.getElementById("weightError").textContent = "";
+      document.getElementById("heightError").textContent = "";
+      document.getElementById("diseaseError").textContent = "";
+
+      let isValid = true;
+
+      if (isNaN(age) || age < 15 || age > 60) {
+        document.getElementById("ageError").textContent = "อายุต้องอยู่ระหว่าง 15 ถึง 60 ปี";
+        isValid = false;
+      }
+
+      if (isNaN(weight) || weight <= 0) {
+        document.getElementById("weightError").textContent = "กรุณากรอกน้ำหนักที่มากกว่า 0";
+        isValid = false;
+      }
+
+      if (isNaN(height) || height <= 0) {
+        document.getElementById("heightError").textContent = "กรุณากรอกส่วนสูงที่มากกว่า 0";
+        isValid = false;
+      }
+
+      if (hasDisease && diseaseDetail === "") {
+        document.getElementById("diseaseError").textContent = "กรุณาระบุโรคประจำตัว";
+        isValid = false;
+      }
+
+      if (isValid) {
+        const bmi = weight / Math.pow(height / 100, 2);
+        const category = getBMICategory(bmi);
+        const resultText = `ค่า BMI ของคุณคือ: ${bmi.toFixed(2)} (${category})`;
+
+        document.getElementById("bmiResult").textContent = resultText;
+        document.getElementById("resultModal").style.display = "flex";
+        form.reset();
+        diseaseDetailBox.style.display = "none";
+      }
+    });
+
+    function closeModal() {
+      document.getElementById("resultModal").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>

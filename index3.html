@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ฟอร์ม มจท.16 - คำร้องขอโอนย้ายสาขาวิชา</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #f9fbe7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .form-container {
+      background: white;
+      padding: 35px;
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .error {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    button[type="submit"] {
+      margin-top: 28px;
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #0072ff, #005ce6);
+      transform: scale(1.02);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .modal-content p {
+      font-size: 1.2rem;
+      color: #2c3e50;
+    }
+
+    .modal-content button {
+      margin-top: 20px;
+      background: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .modal-content button:hover {
+      background: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>คำร้องขอโอนย้ายสาขาวิชาต่างคณะ (มจท.16)</h2>
+    <form id="transferForm" enctype="multipart/form-data">
+
+      <label>ชื่อ - นามสกุล</label>
+      <input type="text" id="fullName">
+      <div id="nameError" class="error"></div>
+
+      <label>รหัสนักศึกษา</label>
+      <input type="text" id="studentId" maxlength="10">
+      <div id="idError" class="error"></div>
+
+      <label>คณะเดิม</label>
+      <select id="oldFaculty">
+        <option value="">-- กรุณาเลือก --</option>
+        <option value="วิศวกรรมศาสตร์">วิศวกรรมศาสตร์</option>
+        <option value="บริหารธุรกิจ">บริหารธุรกิจ</option>
+        <option value="ศิลปศาสตร์">ศิลปศาสตร์</option>
+      </select>
+      <div id="oldFacultyError" class="error"></div>
+
+      <label>สาขาวิชาเดิม</label>
+      <input type="text" id="oldMajor">
+      <div id="oldMajorError" class="error"></div>
+
+      <label>คณะใหม่</label>
+      <select id="newFaculty">
+        <option value="">-- กรุณาเลือก --</option>
+        <option value="วิศวกรรมศาสตร์">วิศวกรรมศาสตร์</option>
+        <option value="บริหารธุรกิจ">บริหารธุรกิจ</option>
+        <option value="ศิลปศาสตร์">ศิลปศาสตร์</option>
+      </select>
+      <div id="newFacultyError" class="error"></div>
+
+      <label>สาขาวิชาใหม่</label>
+      <input type="text" id="newMajor">
+      <div id="newMajorError" class="error"></div>
+
+      <label>เหตุผลในการขอย้าย</label>
+      <textarea id="reason"></textarea>
+      <div id="reasonError" class="error"></div>
+
+      <label>แนบหลักฐาน (.pdf)</label>
+      <input type="file" id="attachment" accept=".pdf">
+      <div id="fileError" class="error"></div>
+
+      <button type="submit">ส่งคำร้อง</button>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="successModal">
+    <div class="modal-content">
+      <p>✅ ส่งคำร้องสำเร็จแล้ว<br>ระบบได้รับข้อมูลของคุณเรียบร้อย</p>
+      <button onclick="closeModal()">ปิด</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("transferForm");
+    const modal = document.getElementById("successModal");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      // Input values
+      const name = document.getElementById("fullName").value.trim();
+      const studentId = document.getElementById("studentId").value.trim();
+      const oldFaculty = document.getElementById("oldFaculty").value;
+      const oldMajor = document.getElementById("oldMajor").value.trim();
+      const newFaculty = document.getElementById("newFaculty").value;
+      const newMajor = document.getElementById("newMajor").value.trim();
+      const reason = document.getElementById("reason").value.trim();
+      const fileInput = document.getElementById("attachment");
+
+      // Clear errors
+      document.querySelectorAll(".error").forEach(el => el.textContent = "");
+
+      let isValid = true;
+
+      if (name.split(" ").length < 2) {
+        document.getElementById("nameError").textContent = "กรุณากรอกชื่อและนามสกุลอย่างน้อย 2 คำ";
+        isValid = false;
+      }
+
+      if (!/^\d{10}$/.test(studentId)) {
+        document.getElementById("idError").textContent = "รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก";
+        isValid = false;
+      }
+
+      if (!oldFaculty) {
+        document.getElementById("oldFacultyError").textContent = "กรุณาเลือกคณะเดิม";
+        isValid = false;
+      }
+
+      if (!oldMajor) {
+        document.getElementById("oldMajorError").textContent = "กรุณากรอกสาขาวิชาเดิม";
+        isValid = false;
+      }
+
+      if (!newFaculty) {
+        document.getElementById("newFacultyError").textContent = "กรุณาเลือกคณะใหม่";
+        isValid = false;
+      }
+
+      if (!newMajor) {
+        document.getElementById("newMajorError").textContent = "กรุณากรอกสาขาใหม่";
+        isValid = false;
+      }
+
+      if (reason.length < 10) {
+        document.getElementById("reasonError").textContent = "กรุณากรอกเหตุผลอย่างน้อย 10 ตัวอักษร";
+        isValid = false;
+      }
+
+      const file = fileInput.files[0];
+      if (!file || file.type !== "application/pdf") {
+        document.getElementById("fileError").textContent = "กรุณาแนบไฟล์ PDF เท่านั้น";
+        isValid = false;
+      }
+
+      if (isValid) {
+        modal.style.display = "flex";
+        form.reset();
+      }
+    });
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+  </script>
+
+</body>
+</html>
